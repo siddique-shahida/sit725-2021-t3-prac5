@@ -1,28 +1,62 @@
-console.log("Starting script..");
+const clickMe = () => {
+    alert("Thanks for clicking")
+}
 
-// creating the cared array here
-const cardsList = [{
-        title: "Very Cute Puppy 2",
-        image: "https://i.pinimg.com/originals/2f/27/f1/2f27f1e84d23cef81a758b0563fed639.jpg",
-        desciption: "Demo desciption about puppy 2"
-    },
-    {
-        title: "Very Cute Puppy 3",
-        image: "https://www.a2048.com/wp-content/uploads/2019/07/bc4a27df619fe52ade14f0d5a82d0f69.jpg",
-        desciption: "Demo desciption about puppy 3"
-    }
-]
+const addProjectToApp = (project) => {
+    $.ajax({
+        url: '/api/projects',
+        data: project,
+        type: 'POST',
+        success: (result) => {
+            alert(result.message);
+            location.reload();
+        }
+    })
+}
+
+const submitForm = () => {
+    let formData = {};
+    formData.title = $('#title').val();
+    formData.image = $('#image').val();
+    formData.link = $('#link').val();
+    formData.description = $('#description').val();
+
+    console.log("Form Data Submitted: ", formData);
+    addProjectToApp(formData);
+}
+
+const getProjects = () => {
+    $.get('/api/projects', (response) => {
+        if (response.statusCode == 200) {
+            console.log(response)
+            addCards(response.data);
+        } else {
+            console.log(response)
+        }
+    })
+}
 
 const addCards = (items) => {
-    items.forEach(element => {
-        '<div class="col s12 m7">' +
-        '<div class="card"><div class="card-image"> <img src="' + item.image + '">' + '<span class="card-title">' + item.title + '</span></div>' + '<div class="card-content"><p>' + item.desciption + '</p></div></div></div>';
+    items.forEach(item => {
+        let itemToAppend = '<div class="col s4 center-align">' +
+            '<div class="card medium"><div class="card-image waves-effect waves-block waves-light"><img class="activator" src="' + item.image + '">' +
+            '</div><div class="card-content">' +
+            '<span class="card-title activator grey-text text-darken-4">' + item.title + '<i class="material-icons right">more_vert</i></span><p><a href="#">' + item.link + '</a></p></div>' +
+            '<div class="card-reveal">' +
+            '<span class="card-title grey-text text-darken-4">' + item.title + '<i class="material-icons right">close</i></span>' +
+            '<p class="card-text">' + item.description + '</p>' +
+            '</div></div></div>';
         $("#card-section").append(itemToAppend)
     });
 }
 
-addCards()
 
-// $(document).ready(function () {
-//     addCards(cardList);
-// });
+
+$(document).ready(function () {
+    $('.materialboxed').materialbox();
+    $('#formSubmit').click(() => {
+        submitForm();
+    })
+    getProjects();
+    $('.modal').modal();
+});
